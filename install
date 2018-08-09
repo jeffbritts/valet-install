@@ -147,6 +147,9 @@ fi
   # Install and update modules
   bin/magento setup:upgrade
 
+  #set rewrite flag
+  bin/magento config:set web/seo/use_rewrites 1
+  
   # Clear cache
   bin/magento cache:clean
 
