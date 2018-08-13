@@ -14,3 +14,6 @@
 - Edit the appropriate values in `.env`
 - the install file can be placed in the root of the project, or in bin if you prefer
 - `chmod +x install` (or `chmod +x bin/install`)
+
+OR add via composer
+

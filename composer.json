@@ -1,0 +1,20 @@
+{
+  "name": "jbritts/valet-install",
+  "description": "Valet + installation and dev tools",
+  "type": "magento2-component",
+  "require-dev": {
+    "mage2tv/magento-cache-clean": "*"
+  },
+  "extra": {
+    "map": [
+      [
+        "install",
+        "install"
+      ],
+      [
+        ".env.sample",
+        ".env.sample"
+      ]
+    ]
+  }
+}
