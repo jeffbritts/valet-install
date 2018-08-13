@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 usage() {
-  echo "Utility for using Valet + in dev with supporting apps\n"
-  echo "Usage:\n\n  vp [action] [additional options...]"
+  echo "Utility for using Valet + in dev with supporting apps"
+  echo "Usage:  vp [action] [additional options...]"
   echo ""
-  echo "Actions:\n"
+  echo "Actions:"
   printf "  %-15s%-30s\n" "-i" "Install Magento"
-  printf "  %-15s%-30s\n" "-c Clean Cache <cache names>" "Clean cache. Specific cache names optional"
+  printf "  %-15s%-30s\n" "-c <caches>" "Clean cache. Specific cache names optional"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
   echo ""
 }
@@ -14,6 +14,11 @@ installMagento(){
     chmod +x ./install
     ./install
 }
+
+
+if [ "$1" = "" ]; then
+    usage
+fi
 
 while [ -n "$1" ]
 
@@ -43,7 +48,8 @@ case "$1" in
 
 break ;;
 
-*) echo "Option $1 not recognized";;
+*) usage ;;
+
 
 
 esac
