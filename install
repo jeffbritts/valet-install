@@ -151,7 +151,7 @@ fi
   bin/magento config:set web/seo/use_rewrites 1
 
   # Clear cache
-  bin/magento cache:clean
+  vendor/bin/cache-clean.js
 
   # Index data
   bin/magento indexer:reindex
