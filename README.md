@@ -17,3 +17,6 @@
 
 OR add via composer
 
+####Additions
+mage2tv/magento-cache-clean - https://github.com/mage2tv/magento-cache-clean
+
