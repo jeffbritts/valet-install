@@ -3,7 +3,7 @@
   "description": "Valet + installation and dev tools",
   "type": "magento2-component",
   "require": {
-    "mage2tv/magento-cache-clean": "*"
+    "mage2tv/magento-cache-clean": "0.0.4"
   },
   "extra": {
     "map": [
