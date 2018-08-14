@@ -5,50 +5,15 @@
 
 usage() {
   echo "Utility for using Valet + in dev with supporting apps"
-  echo "Usage:  vp [action] [additional options...]"
+  echo "Usage:  vp [action]"
   echo ""
   echo "Actions:"
   printf "  %-15s%-30s\n" "-i" "Install Magento"
-  printf "  %-15s%-30s\n" "-c <caches>" "Clean cache. Specific cache names optional"
+  printf "  %-15s%-30s\n" "-c" "Clean cache"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
   echo ""
 
 }
-if [ "$1" = "" ]; then
-    usage
-fi
-
-while [ -n "$1" ]
-
-# while loop starts
-
-do
-
-case "$1" in
-
-# install
-
--i) installMagento ;;
-
-# cache clean
-
--c) vendor/bin/cache-clean.js ;;
-
-# cache clean watch
-
--w) vendor/bin/cache-clean.js --watch ;;
-
-# The double dash which separates options from parameters
-
---) shift
-
-# Exit the loop using break command
-
-break ;;
-
-*) usage ;;
-
-esac
 
 # SCRIPTNAME contains the name
 # of the current script (e.g. "server")
@@ -215,4 +180,37 @@ installMagento(){
   printf "%-15s%s: %s\n" "" "Username" ${ADMIN_USERNAME}
   printf "%-15s%s: %s\n" "" "Password" ${ADMIN_PASSWORD}
 }
+if [ "$1" = "" ]; then
+    usage
+fi
+
+while [ -n "$1" ]
+
+# while loop starts
+
+do
+
+case "$1" in
+
+# install
+
+-i) installMagento
+    shift;;
+
+# cache clean
+
+-c) vendor/bin/cache-clean.js
+    shift;;
+
+# cache clean watch
+
+-w) vendor/bin/cache-clean.js --watch
+    shift;;
+
+*) usage
+    shift;;
+# Exit the loop using break command
+
+esac
+
 done
