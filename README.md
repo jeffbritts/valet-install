@@ -1,8 +1,20 @@
 #Valet Install
 
-####A helper script to easily install Magento 2 on a Valet + environment
+####A helper script for Magento 2 on a Valet + environment
 
-#####What it does
+#####Usage
+vp [action]
+
+Actions:
+
+-i&nbsp;&nbsp;&nbsp;&nbsp;Install Magento\
+-c&nbsp;&nbsp;&nbsp;&nbsp;Clean cache\
+-w&nbsp;&nbsp;&nbsp;&nbsp;Start cache-clean watcher
+
+Cache Clean uses https://github.com/mage2tv/magento-cache-clean
+
+
+#####What it does on install
 - deletes `/app/etc/env.php`
 - applies ece patches (if present)
 - drops and creates database
@@ -12,11 +24,5 @@
 #####To use
 - Copy `.env.sample` to `.env` (this should be in the root of your project)
 - Edit the appropriate values in `.env`
-- the install file can be placed in the root of the project, or in bin if you prefer
-- `chmod +x install` (or `chmod +x bin/install`)
-
-OR add via composer
-
-####Additions
-mage2tv/magento-cache-clean - https://github.com/mage2tv/magento-cache-clean
+- `chmod +x vp`
 

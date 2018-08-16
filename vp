@@ -118,8 +118,6 @@ fi
 #   None
 #######################################
 installMagento(){
-  # Add write permissions for pub folder
-  chmod -R g+w pub
 
   # Delete config before install
   rm -f app/etc/env.php
