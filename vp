@@ -121,6 +121,7 @@ installMagento(){
 
   # Delete config before install
   rm -f app/etc/env.php
+  rm -f app/etc/config.php
 
   # apply patches
   php vendor/magentoese/ece-tools/bin/ece-tools patch
