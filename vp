@@ -123,7 +123,7 @@ installMagento(){
   rm -f app/etc/env.php
 
   # apply patches
-  php vendor/magentoese/ece-patches/m2-apply-patches
+  php vendor/magentoese/ece-tools/bin/ece-tools patch
 
   # drop database
   valet db drop ${CURRENTDIR} -y
