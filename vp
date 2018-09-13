@@ -193,7 +193,13 @@ case "$1" in
 
 # install
 
--i) installMagento
+-i) read -r -p "Do you want to install? [N/y] " REPLY
+    if test "$REPLY" = "y" -o "$REPLY" = "Y"; then
+       installMagento
+    else
+        exit 0
+    fi
+
     shift;;
 
 # cache clean
