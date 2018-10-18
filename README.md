@@ -7,9 +7,9 @@ vp [action]
 
 Actions:
 
--i&nbsp;&nbsp;&nbsp;&nbsp;Install Magento\
--c&nbsp;&nbsp;&nbsp;&nbsp;Clean cache\
--w&nbsp;&nbsp;&nbsp;&nbsp;Start cache-clean watcher
+-i Install Magento  
+-c Clean cache  
+-w Start cache-clean watcher  
 
 Cache Clean uses https://github.com/mage2tv/magento-cache-clean
 
