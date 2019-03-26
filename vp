@@ -162,7 +162,11 @@ installMagento(){
   bin/magento config:set web/seo/use_rewrites 1
 
   # Clear cache
-  vendor/bin/cache-clean.js
+  if [ -f vendor/bin/cache-clean.js ]; then
+    vendor/bin/cache-clean.js
+  else
+    bin/magento cache:clean
+  fi
 
   # Index data
   bin/magento indexer:reindex
