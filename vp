@@ -208,7 +208,11 @@ case "$1" in
 
 # cache clean
 
--c) vendor/bin/cache-clean.js
+-c) if [ -f vendor/bin/cache-clean.js ]; then
+      vendor/bin/cache-clean.js
+    else
+      bin/magento cache:clean
+    fi
     shift;;
 
 # cache clean watch
