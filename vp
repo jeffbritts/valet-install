@@ -9,6 +9,8 @@ usage() {
   echo ""
   echo "Actions:"
   printf "  %-15s%-30s\n" "-i" "Install Magento"
+  printf "  %-15s%-30s\n" "-r" "Reindex"
+  printf "  %-15s%-30s\n" "-u" "Run setup:upgrade"
   printf "  %-15s%-30s\n" "-c" "Clean cache"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
   echo ""
@@ -218,6 +220,17 @@ case "$1" in
 # cache clean watch
 
 -w) vendor/bin/cache-clean.js --watch
+    shift;;
+
+# reindex
+
+-r) bin/magento indexer:reindex
+    shift;;
+
+
+# upgrade
+
+-u) bin/magento setup:upgrade
     shift;;
 
 *) usage
