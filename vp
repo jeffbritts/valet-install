@@ -176,6 +176,9 @@ installMagento(){
   #set developer mode
   bin/magento deploy:mode:set developer
 
+  #generate urn recognition
+  bin/magento dev:urn-catalog:generate .idea/misc.xml
+
   # Print results
   echo "\n"
   echo "Installation complete.\n"
