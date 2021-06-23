@@ -163,6 +163,15 @@ installMagento(){
   #set rewrite flag
   bin/magento config:set web/seo/use_rewrites 1
 
+  #disable forcing secure urls
+  bin/magento config:set web/secure/use_in_adminhtml 0
+  bin/magento config:set web/secure/use_in_frontend 0
+  bin/magento config:set web/secure/enable_upgrade_insecure 0
+  bin/magento config:set web/secure/enable_hsts 0
+
+  #disable 2fa
+  bin/magento module:disable Magento_TwoFactorAuth
+
   # Clear cache
   if [ -f vendor/bin/cache-clean.js ]; then
     vendor/bin/cache-clean.js

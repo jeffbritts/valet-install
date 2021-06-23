@@ -4,21 +4,5 @@
   "type": "magento2-component",
   "require": {
     "mage2tv/magento-cache-clean": "*"
-  },
-  "extra": {
-    "map": [
-      [
-        "install",
-        "install"
-      ],
-      [
-        ".env.sample",
-        ".env.sample"
-      ],
-      [
-        "vp",
-        "vp"
-      ]
-    ]
   }
 }

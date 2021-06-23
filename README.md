@@ -8,7 +8,8 @@ vp [action]
 Actions:
 
 -i Install Magento  
--c Clean cache  
+-c Clean cache
+-r Reindex  
 -w Start cache-clean watcher  
 
 Cache Clean uses https://github.com/mage2tv/magento-cache-clean
@@ -22,7 +23,8 @@ Cache Clean uses https://github.com/mage2tv/magento-cache-clean
 - runs upgrade, cleans cache, reindexes, sets developer mode
 
 #####To use
-- Copy `.env.sample` to `.env` (this should be in the root of your project)
+- Copy all files except `composer.json` to your project root
+-  `mv .env.sample .env`
 - Edit the appropriate values in `.env`
 - `chmod +x vp`
 
