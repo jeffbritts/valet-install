@@ -23,8 +23,7 @@ Cache Clean uses https://github.com/mage2tv/magento-cache-clean
 - runs upgrade, cleans cache, reindexes, sets developer mode
 
 #####To use
-- Copy all files except `composer.json` to your project root
--  `mv .env.sample .env`
-- Edit the appropriate values in `.env`
-- `chmod +x vp`
+- `composer require jbritts/valet-install`
+- run `./vendor/jeffbritts/valet-install/setup`
+-  If you dont have a local `.env` file : `mv .env.sample .env` and edit the appropriate values
 

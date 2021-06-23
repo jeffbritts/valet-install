@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+## setup links to files
+ln -sf vendor/jbritts/valet-install/vp vp;
+ln -s vendor/jbritts/valet-install/.vscode .vscode;
+ln -s vendor/jbritts/valet-install/.env.sample .env.sample
+ln -s vendor/jbritts/valet-install/LocalValetDriver.php LocalValetDriver.php
+ln -s vendor/jbritts/valet-install/npm-shrinkwrap.json npm-shrinkwrap.json
+### this is for copying my local .env file so it is not in source control
+### you can do somthing similar
+cp ~/sites/vp/.env .

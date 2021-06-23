@@ -1,7 +1,7 @@
 {
-  "name": "jbritts/valet-install",
+  "name": "jeffbritts/valet-install",
   "description": "Valet + installation and dev tools",
-  "type": "magento2-component",
+  "version" :"1.0.0",
   "require": {
     "mage2tv/magento-cache-clean": "*"
   }
