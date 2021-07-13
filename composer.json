@@ -1,8 +1,8 @@
 {
   "name": "jeffbritts/valet-install",
   "description": "Valet + installation and dev tools",
-  "version" :"1.0.2",
-  "require-dev": {
+  "version" :"1.0.3",
+  "require": {
     "mage2tv/magento-cache-clean": "*",
     "magento/magento-coding-standard": "^6.0",
     "php-parallel-lint/php-parallel-lint": "*",
