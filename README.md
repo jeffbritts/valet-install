@@ -27,3 +27,18 @@ Cache Clean uses https://github.com/mage2tv/magento-cache-clean
 - run `./vendor/jeffbritts/valet-install/setup`
 -  If you dont have a local `.env` file : `mv .env.sample .env` and edit the appropriate values
 
+
+####Grumphp configuration
+For module setup:
+add to modules composer.json
+`
+,
+    "config": {
+        "bin-dir": "../../../../vendor/bin"
+    }
+`
+run in module root
+`cp ../../../grumphp_module.yml grumphp.yml`
+`grumphp git:init`
+
+

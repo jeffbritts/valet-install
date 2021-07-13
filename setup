@@ -6,7 +6,7 @@ ln -s vendor/jeffbritts/valet-install/.vscode .vscode;
 ln -s vendor/jeffbritts/valet-install/.env.sample .env.sample
 ln -s vendor/jeffbritts/valet-install/LocalValetDriver.php LocalValetDriver.php
 ln -s vendor/jeffbritts/valet-install/npm-shrinkwrap.json npm-shrinkwrap.json
-ln -s vendor/jeffbritts/valet-install/npm-shrinkwrap.json npm-shrinkwrap.json
+ln -s vendor/jeffbritts/valet-install/grumphp_module.yml grumphp_module.yml
 phpcs --config-set installed_paths ../../magento/magento-coding-standard/
 ### this is for copying my local .env file so it is not in source control
 ### you can do somthing similar
