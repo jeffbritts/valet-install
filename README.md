@@ -23,7 +23,7 @@ Cache Clean uses https://github.com/mage2tv/magento-cache-clean
 - runs upgrade, cleans cache, reindexes, sets developer mode
 
 #####To use
-- `composer require jbritts/valet-install`
+- `composer require-dev jbritts/valet-install`
 - run `./vendor/jeffbritts/valet-install/setup`
 -  If you dont have a local `.env` file : `mv .env.sample .env` and edit the appropriate values
 
@@ -39,6 +39,4 @@ add to modules composer.json
 `
 run in module root
 `cp ../../../grumphp_module.yml grumphp.yml`
-`grumphp git:init`
-
 

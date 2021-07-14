@@ -55,12 +55,12 @@ grumphp:
         # allowed branch names: 'feature-1', 'feature-new', 'feature-new1', 'task-1', etc
         - "/(hotfix|bugfix|feature|release|task)-([a-z|0-9]+)$/"
         - "test"
+        - "develop"
+        - "master"
       blacklist:
         - "development"
         - "production"
         - "staging"
-        - "master"
-        - "infra"
       allow_detached_head: true
     # catch not allowed keywords
     git_blacklist:
