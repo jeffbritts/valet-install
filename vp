@@ -13,6 +13,9 @@ usage() {
   printf "  %-15s%-30s\n" "-u" "Run setup:upgrade"
   printf "  %-15s%-30s\n" "-c" "Clean cache"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
+  printf "  %-15s%-30s\n" "-v" "Run coding standards check"
+  printf "  %-15s%-30s\n" "-ls" "Enable Live Search/Disable ElasticSearch"
+  printf "  %-15s%-30s\n" "-es" "Enable ElasicSearch/Disable Live Search"
   echo ""
 
 }
@@ -172,6 +175,9 @@ installMagento(){
   #disable 2fa
   bin/magento module:disable Magento_TwoFactorAuth
 
+  #disable live search
+  disableLiveSearch
+
   # Clear cache
   if [ -f vendor/bin/cache-clean.js ]; then
     vendor/bin/cache-clean.js
@@ -196,6 +202,45 @@ installMagento(){
   printf "%-15s%s: %s\n" "" "Username" ${ADMIN_USERNAME}
   printf "%-15s%s: %s\n" "" "Password" ${ADMIN_PASSWORD}
 }
+
+isElasticsearchUp () {
+  if curl --stderr - localhost:9200 | grep -q cluster_name; then
+    echo "\nElasticsearch Is Up\n"
+  else
+    echo "\n***Elasticsearch Not Running***\n"
+    exit 0;
+  fi
+}
+
+enableCompression () {
+  echo "\nEnabling JS & CS merge and minification\n"
+  bin/magento config:set dev/js/merge_files 1
+  bin/magento config:set dev/js/minify_files 1
+  bin/magento config:set dev/js/enable_js_bundling 0
+  bin/magento config:set dev/js/move_script_to_bottom 1
+  bin/magento config:set dev/css/minify_files 1
+  bin/magento config:set dev/css/merge_css_files 1
+}
+
+checkCodingStandards () {
+  vendor/bin/phpcbf --standard=PSR2 $1 -s
+  vendor/bin/phpcbf --standard=Magento2 $1 -s
+  vendor/bin/phpcs --standard=PSR2 $1 -s
+  vendor/bin/phpcs --standard=Magento2 $1 -s
+}
+
+disableLiveSearch(){ 
+   echo "\nDisableing Live Search\n"
+    bin/magento module:disable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
+    bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
+}
+
+enableLiveSearch(){ 
+    echo "\nEnabling Live Search\n"
+    bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
+    bin/magento module:enable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
+}
+
 if [ "$1" = "" ]; then
     usage
 fi
@@ -208,10 +253,23 @@ do
 
 case "$1" in
 
+# code validation
+
+-v) if [ -z "$2" ] 
+    then  
+      read -r -p "Path to module to check " MODULE
+    else
+      MODULE=$2
+    fi
+    checkCodingStandards "$MODULE"
+    shift
+    shift;;
+
 # install
 
 -i) read -r -p "Do you want to install? [N/y] " REPLY
     if test "$REPLY" = "y" -o "$REPLY" = "Y"; then
+       isElasticsearchUp
        installMagento
     else
         exit 0
@@ -239,12 +297,31 @@ case "$1" in
     shift;;
 
 
-# upgrade
+# enable live search
 
--u) bin/magento setup:upgrade
+-ls) enableLiveSearch
     shift;;
 
-*) usage
+# disable live search
+
+-es) disableLiveSearch
+    shift;;
+
+# upgrade
+
+-u) php vendor/magentoese/ece-tools/bin/ece-tools patch
+    isElasticsearchUp
+    bin/magento setup:upgrade
+
+    #disable 2fa and livesearch
+    bin/magento module:disable Magento_TwoFactorAuth
+    disableLiveSearch
+    enableCompression
+    shift;;
+
+*)  echo "1-$1"
+    echo $2
+    usage
     shift;;
 # Exit the loop using break command
 

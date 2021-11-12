@@ -15,6 +15,20 @@ class LocalValetDriver extends Magento2ValetDriver
         $this->loadServerEnvironmentVariables($sitePath, $siteName);
         $_SERVER['SERVER_NAME'] = $_SERVER['HTTP_HOST'];
 
+
+        $allowedSiteCodes = ['fresh','auto','b2b','b2c','sitea','siteb','luma','venia','brentmill','healthbeauty'];
+
+        if(isset($_SERVER['HTTP_HOST'])){
+            $subDomain = explode('.', $_SERVER['HTTP_HOST']);
+            if(isset($subDomain[0])){
+                if (in_array($subDomain[0], $allowedSiteCodes)) {
+                    $_SERVER["MAGE_RUN_TYPE"] = 'website';
+                    $_SERVER["MAGE_RUN_CODE"] = $subDomain[0];
+                }
+            }
+        }
+
+
         //if ($_SERVER['HTTP_HOST'] === 'venia.jeff-si-dev.test') {
         //    $_SERVER['MAGE_RUN_CODE'] = 'venia';
         //    $_SERVER['MAGE_RUN_TYPE'] = 'website';
