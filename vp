@@ -231,14 +231,14 @@ checkCodingStandards () {
 
 disableLiveSearch(){ 
    echo "\nDisableing Live Search\n"
-    bin/magento module:disable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
+    bin/magento module:disable Magento_LiveSearchMetrics Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
     bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
 }
 
 enableLiveSearch(){ 
     echo "\nEnabling Live Search\n"
     bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
-    bin/magento module:enable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
+    bin/magento module:enable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch Magento_LiveSearchMetrics
 }
 
 if [ "$1" = "" ]; then
