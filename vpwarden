@@ -1,0 +1,346 @@
+#!/bin/sh
+#
+# A script for magento 2 installation
+# in a Valet + environment.
+
+usage() {
+  echo "Utility for using Valet + in dev with supporting apps"
+  echo "Usage:  vp [action]"
+  echo ""
+  echo "Actions:"
+  printf "  %-15s%-30s\n" "-i" "Install Magento"
+  printf "  %-15s%-30s\n" "-r" "Reindex"
+  printf "  %-15s%-30s\n" "-u" "Run setup:upgrade"
+  printf "  %-15s%-30s\n" "-c" "Clean cache"
+  printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
+  printf "  %-15s%-30s\n" "-v" "Run coding standards check"
+  printf "  %-15s%-30s\n" "-ls" "Enable Live Search/Disable ElasticSearch"
+  printf "  %-15s%-30s\n" "-es" "Enable ElasicSearch/Disable Live Search"
+  echo ""
+
+}
+
+# SCRIPTNAME contains the name
+# of the current script (e.g. "server")
+SCRIPTNAME="bin/$(basename $0)"
+
+# PROJECTPATH contains the full
+# directory path of the project itself
+PROJECTPATH=$(pwd)
+
+# CURRENTDIR gets the name of the
+# install directory to be used for
+# db name and dns
+CURRENTDIR=${PWD##*/}
+
+
+# ENVIRONMENTVARIABLESFILE contains the path
+# to the file that holds the required environment
+# variables for this script.
+ENVIRONMENTVARIABLESFILE="$PROJECTPATH/.env"
+if [ ! -f $ENVIRONMENTVARIABLESFILE ]; then
+  echo >&2 "The file that holds the environment variables was not found at $ENVIRONMENTVARIABLESFILE"
+  exit 1
+fi
+
+
+# execute the file that sets the environment variables
+. $ENVIRONMENTVARIABLESFILE
+
+if [ -z "$DATABASE_USER" ]; then
+  echo >&2 "The DATABASE_USER variable is not set"
+  exit 1
+fi
+
+if [ -z "$DATABASE_PASSWORD" ]; then
+  echo >&2 "The DATABASE_PASSWORD variable is not set"
+  exit 1
+fi
+
+if [ -z "$ADMIN_USERNAME" ]; then
+  echo >&2 "The ADMIN_USERNAME variable is not set"
+  exit 1
+fi
+
+if [ -z "$ADMIN_FIRSTNAME" ]; then
+  echo >&2 "The ADMIN_FIRSTNAME variable is not set"
+  exit 1
+fi
+
+if [ -z "$ADMIN_LASTNAME" ]; then
+  echo >&2 "The ADMIN_LASTNAME variable is not set"
+  exit 1
+fi
+
+if [ -z "$ADMIN_EMAIL" ]; then
+  echo >&2 "The ADMIN_EMAIL variable is not set"
+  exit 1
+fi
+
+if [ -z "$ADMIN_PASSWORD" ]; then
+  echo >&2 "The ADMIN_PASSWORD variable is not set"
+  exit 1
+fi
+
+if [ -z "$DEFAULT_LANGUAGE" ]; then
+  echo >&2 "The DEFAULT_LANGUAGE variable is not set"
+  exit 1
+fi
+
+if [ -z "$DEFAULT_CURRENCY" ]; then
+  echo >&2 "The DEFAULT_CURRENCY variable is not set"
+  exit 1
+fi
+
+if [ -z "$DEFAULT_TIMEZONE" ]; then
+  echo >&2 "The DEFAULT_TIMEZONE variable is not set"
+  exit 1
+fi
+
+if [ -z "$BACKEND_FRONTNAME" ]; then
+  echo >&2 "The BACKEND_FRONTNAME variable is not set"
+  exit 1
+fi
+
+
+#######################################
+# Install Magento
+# Globals:
+#   DATABASE_USER
+#   DATABASE_PASSWORD
+#   ADMIN_USERNAME
+#   ADMIN_FIRSTNAME
+#   ADMIN_LASTNAME
+#   ADMIN_EMAIL
+#   ADMIN_PASSWORD
+#   DEFAULT_LANGUAGE
+#   DEFAULT_CURRENCY
+#   DEFAULT_TIMEZONE
+#   BACKEND_FRONTNAME
+# Arguments:
+#   none
+# Returns:
+#   None
+#######################################
+installMagento(){
+
+  # Delete config before install
+  rm -f app/etc/env.php
+  # not sure why this was in place
+  # rm -f app/etc/config.php
+
+  # apply patches
+  php vendor/magentoese/ece-tools/bin/ece-tools patch
+
+  # drop database
+  mysql -u root -p -h db --password=magento -e "drop database magento"
+
+  # create new database
+  mysql -u root -p -h db --password=magento -e "create database magento"
+
+
+  # Install magento 2
+  baseURLInsecure="http://${WARDEN_ENV_NAME}.test/"
+  baseURLSecure="https://${WARDEN_ENV_NAME}.test/"
+  backendURL="https://${WARDEN_ENV_NAME}.test/${BACKEND_FRONTNAME}"
+
+  if [ -z "$KEY" ]; then
+  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure --backend-frontname=${BACKEND_FRONTNAME} \
+                            --language=${DEFAULT_LANGUAGE} --currency=${DEFAULT_CURRENCY} --timezone=${DEFAULT_TIMEZONE} \
+                            --db-host=db --db-name=magento --db-user=${DATABASE_USER} --db-password=${DATABASE_PASSWORD} \
+                            --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
+                            --cleanup-database \
+                            --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
+                            --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=9200 --elasticsearch-index-prefix=magento2 --elasticsearch-enable-auth=0 --elasticsearch-timeout=15 \
+                            --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
+                            --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
+                            --page-cache-redis-port=6379
+  else
+
+  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure --backend-frontname=${BACKEND_FRONTNAME} \
+                            --language=${DEFAULT_LANGUAGE} --currency=${DEFAULT_CURRENCY} --timezone=${DEFAULT_TIMEZONE} \
+                            --db-host=db --db-name=magento --db-user=${DATABASE_USER} --db-password=${DATABASE_PASSWORD} \
+                            --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
+                            --cleanup-database --key=${KEY} \
+                            --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
+                            --search-engine=elasticsearch7 --elasticsearch-host=elasticsearch --elasticsearch-port=9200 --elasticsearch-index-prefix=magento2 --elasticsearch-enable-auth=0 --elasticsearch-timeout=15 \
+                            --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
+                            --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
+                            --page-cache-redis-port=6379
+  fi
+  # Install and update modules
+  bin/magento setup:upgrade
+
+  #set flags
+  bin/magento config:set web/seo/use_rewrites 1
+  bin/magento config:set web/secure/use_in_adminhtml 1
+  bin/magento config:set web/secure/use_in_frontend 1
+  bin/magento config:set web/secure/enable_upgrade_insecure 0
+  bin/magento config:set web/secure/enable_hsts 0
+  bin/magento config:set web/secure/offloader_header X-Forwarded-Proto
+  bin/magento config:set system/full_page_cache/caching_application 2
+  bin/magento config:set system/full_page_cache/ttl 604800
+  bin/magento config:set catalog/search/enable_eav_indexer 1
+  bin/magento config:set dev/static/sign 0
+  
+
+  #disable 2fa
+  bin/magento module:disable Magento_TwoFactorAuth
+
+  #disable live search
+  disableLiveSearch
+
+  # Clear cache
+  if [ -f vendor/bin/cache-clean.js ]; then
+    vendor/bin/cache-clean.js
+  else
+    bin/magento cache:clean
+  fi
+
+  # Index data
+  bin/magento indexer:reindex
+
+  #set developer mode
+  bin/magento deploy:mode:set developer
+
+  #set indexers to schedule
+  bin/magento indexer:set-mode schedule
+
+  #enable cron
+  bin/magento cron:install
+
+  #dump base install db
+  # valet db dump dbBaseInstall
+
+  # Print results
+  echo "\n"
+  echo "Installation complete.\n"
+
+  printf "%-15s%-30s\n" "Frontend" $baseURLSecure
+  printf "%-15s%-30s\n" "Backend" $backendURL
+  printf "%-15s%s: %s\n" "" "Username" ${ADMIN_USERNAME}
+  printf "%-15s%s: %s\n" "" "Password" ${ADMIN_PASSWORD}
+}
+
+isElasticsearchUp () {
+  if curl --stderr - localhost:9200 | grep -q cluster_name; then
+    echo "\nElasticsearch Is Up\n"
+  else
+    echo "\n***Elasticsearch Not Running***\n"
+    exit 0;
+  fi
+}
+
+enableCompression () {
+  echo "\nEnabling JS & CS merge and minification\n"
+  bin/magento config:set dev/js/merge_files 1
+  bin/magento config:set dev/js/minify_files 1
+  bin/magento config:set dev/js/enable_js_bundling 0
+  bin/magento config:set dev/js/move_script_to_bottom 1
+  bin/magento config:set dev/css/minify_files 1
+  bin/magento config:set dev/css/merge_css_files 1
+}
+
+checkCodingStandards () {
+  vendor/bin/phpcbf --standard=PSR2 $1 -s
+  vendor/bin/phpcbf --standard=Magento2 $1 -s
+  vendor/bin/phpcs --standard=PSR2 $1 -s
+  vendor/bin/phpcs --standard=Magento2 $1 -s
+}
+
+disableLiveSearch(){ 
+   echo "\nDisableing Live Search\n"
+    bin/magento module:disable Magento_LiveSearchMetrics Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
+    bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
+}
+
+enableLiveSearch(){ 
+    echo "\nEnabling Live Search\n"
+    bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
+    bin/magento module:enable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch Magento_LiveSearchMetrics
+}
+
+if [ "$1" = "" ]; then
+    usage
+fi
+
+while [ -n "$1" ]
+
+# while loop starts
+
+do
+
+case "$1" in
+
+# code validation
+
+-v) if [ -z "$2" ] 
+    then  
+      read -r -p "Path to module to check: " MODULE
+    else
+      MODULE=$2
+    fi
+    checkCodingStandards $MODULE
+    shift
+    shift;;
+
+# install
+
+-i) #isElasticsearchUp
+    installMagento
+    shift;;
+
+# cache clean
+
+-c) #if [ -f vendor/bin/cache-clean.js ]; then
+    #  vendor/bin/cache-clean.js
+    #else
+      bin/magento cache:clean
+    #fi
+    shift;;
+
+# cache clean watch
+
+-w) vendor/bin/cache-clean.js --watch
+    shift;;
+
+# reindex
+
+-r) bin/magento indexer:reindex
+    shift;;
+
+
+# enable live search
+
+-ls) enableLiveSearch
+    shift;;
+
+# disable live search
+
+-es) disableLiveSearch
+    shift;;
+
+# upgrade
+
+-u) php vendor/magentoese/ece-tools/bin/ece-tools patch
+    #isElasticsearchUp
+    bin/magento setup:upgrade
+    rm -rf generated/*
+    #disable 2fa and livesearch
+    bin/magento module:disable Magento_TwoFactorAuth
+    disableLiveSearch
+    enableCompression
+    shift;;
+
+-t) echo ${WARDEN_ENV_NAME}
+    shift;;
+
+*)  echo "1-$1"
+    echo $2
+    usage
+    shift;;
+# Exit the loop using break command
+
+esac
+
+done

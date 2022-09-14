@@ -1,18 +1,19 @@
-#Valet Install
+#Warden Install
 
-####A helper script for Magento 2 on a Valet + environment
+####A helper script for Magento 2 on a Warden Development
 
 #####Usage
-vp [action]
+wd [action]
 
 Actions:
 
 -i Install Magento  
 -c Clean cache
 -r Reindex  
--w Start cache-clean watcher  
+-w Start cache-clean watcher
+-db (dump,reimport) (filename)
 
-Cache Clean uses https://github.com/mage2tv/magento-cache-clean
+Cache Clean supports https://github.com/mage2tv/magento-cache-clean
 
 
 #####What it does on install
