@@ -243,8 +243,10 @@ enableCompression () {
 
 checkCodingStandards () {
   vendor/bin/phpcbf --standard=PSR2 $1 -s
+  vendor/bin/phpcbf --standard=Magento2Framework $1 -s
   vendor/bin/phpcbf --standard=Magento2 $1 -s
   vendor/bin/phpcs --standard=PSR2 $1 -s
+  vendor/bin/phpcs --standard=Magento2Framework $1 -s
   vendor/bin/phpcs --standard=Magento2 $1 -s
 }
 
