@@ -243,23 +243,21 @@ enableCompression () {
 
 checkCodingStandards () {
   vendor/bin/phpcbf --standard=PSR2 $1 -s
-  vendor/bin/phpcbf --standard=Magento2Framework $1 -s
   vendor/bin/phpcbf --standard=Magento2 $1 -s
   vendor/bin/phpcs --standard=PSR2 $1 -s
-  vendor/bin/phpcs --standard=Magento2Framework $1 -s
   vendor/bin/phpcs --standard=Magento2 $1 -s
 }
 
 disableLiveSearch(){ 
    echo "\nDisableing Live Search\n"
-    bin/magento module:disable Magento_LiveSearchMetrics Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch
-    bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
+    bin/magento module:disable Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover
+    bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
 }
 
 enableLiveSearch(){ 
     echo "\nEnabling Live Search\n"
-    bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_AdvancedSearch Magento_InventoryElasticsearch Magento_ElasticSearchCatalogPermissions
-    bin/magento module:enable Magento_LiveSearchStorefrontPopover Magento_LiveSearchAdapter Magento_LiveSearch Magento_LiveSearchMetrics
+    bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
+    bin/magento module:enable Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover
 }
 
 if [ "$1" = "" ]; then

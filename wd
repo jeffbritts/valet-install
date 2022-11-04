@@ -1,15 +1,15 @@
 #!/bin/sh
 #
 # A script for magento 2 installation
-# in a Warden environment.
+# in a Den environment.
 
 usage() {
-  echo "Utility for using Warden in dev with supporting apps"
+  echo "Utility for using Den in dev with supporting apps"
   echo "Usage: wd [action]"
   echo ""
   echo "Actions:"
   printf "  %-15s%-30s\n" "-i" "Install Magento"
-  printf "  %-15s%-30s\n" "-n [php version] 8.1 default" "New Warden environment"
+  printf "  %-15s%-30s\n" "-n [php version] 8.1 default" "New Den environment"
   printf "  %-15s%-30s\n" "-db [dump|reimport] [file] 8.1 default" "Dump|reimport db"
   printf "  %-15s%-30s\n" "-r" "Reindex"
   printf "  %-15s%-30s\n" "-u" "Run setup:upgrade"
@@ -25,12 +25,11 @@ usage() {
 DEFAULT_PHP_VERSION=8.1
 
 initialize(){ 
-    echo "\nInitializing Warden environment\n"
+    echo "\nInitializing Den environment\n"
     ENVIRONMENTVARIABLESFILE=".env"
-    DEFAULTENVIRONMENTVARIABLESFILE=".envdefaults"
     CURRENTDIR=${PWD##*/}
     #create env file
-    warden env-init ${CURRENTDIR} magento2
+    den env-init ${CURRENTDIR} magento2
     
     #replace server variables - assume php 8 is default, otherwise take the file as generated 
     #possible expansion to future version support
@@ -38,21 +37,22 @@ initialize(){
     if [ $phpVersion = $DEFAULT_PHP_VERSION ]; then
         set81
     fi
-    . $DEFAULTENVIRONMENTVARIABLESFILE
+
     addEnvVariables
     # execute the file that sets the environment variables
     . $ENVIRONMENTVARIABLESFILE
+
+    den sign-certificate ${TRAEFIK_DOMAIN}
     
-    warden sign-certificate ${TRAEFIK_DOMAIN}
-    
-    warden env up
+    den env build
+    den env create
+    den env up
 
 }
 
 set81(){
     sed -i "s/ELASTICSEARCH_VERSION=7.6/ELASTICSEARCH_VERSION=7.16/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/MARIADB_VERSION=10.3/MARIADB_VERSION=10.4/" $ENVIRONMENTVARIABLESFILE
-    sed -i "s/NODE_VERSION=10/NODE_VERSION=7.6/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/COMPOSER_VERSION=1/COMPOSER_VERSION=2.1/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/PHP_VERSION=7.4/PHP_VERSION=8.1/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/RABBITMQ_VERSION=3.8/RABBITMQ_VERSION=3.9/" $ENVIRONMENTVARIABLESFILE
@@ -62,26 +62,26 @@ set81(){
 
 addEnvVariables(){
     echo "\n" >> $ENVIRONMENTVARIABLESFILE
-    echo "ADMIN_USERNAME=${ADMIN_USERNAME}" >> $ENVIRONMENTVARIABLESFILE
-    echo "ADMIN_FIRSTNAME=${ADMIN_FIRSTNAME}" >> $ENVIRONMENTVARIABLESFILE
-    echo "ADMIN_LASTNAME=${ADMIN_LASTNAME}" >> $ENVIRONMENTVARIABLESFILE
-    echo "ADMIN_EMAIL=${ADMIN_EMAIL}" >> $ENVIRONMENTVARIABLESFILE
-    echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> $ENVIRONMENTVARIABLESFILE
-    echo "DEFAULT_LANGUAGE=${DEFAULT_LANGUAGE}" >> $ENVIRONMENTVARIABLESFILE
-    echo "DEFAULT_CURRENCY=${DEFAULT_CURRENCY}" >> $ENVIRONMENTVARIABLESFILE
-    echo "DEFAULT_TIMEZONE=${DEFAULT_TIMEZONE}" >> $ENVIRONMENTVARIABLESFILE
-    echo "DATABASE_USER=${DATABASE_USER}" >> $ENVIRONMENTVARIABLESFILE
-    echo "DATABASE_PASSWORD=${DATABASE_PASSWORD}" >> $ENVIRONMENTVARIABLESFILE
-    echo "BACKEND_FRONTNAME=${BACKEND_FRONTNAME}" >> $ENVIRONMENTVARIABLESFILE
+    echo "ADMIN_USERNAME=admin" >> $ENVIRONMENTVARIABLESFILE
+    echo "ADMIN_FIRSTNAME=Admin" >> $ENVIRONMENTVARIABLESFILE
+    echo "ADMIN_LASTNAME=Inistrator" >> $ENVIRONMENTVARIABLESFILE
+    echo "ADMIN_EMAIL=johndoe@example.com" >> $ENVIRONMENTVARIABLESFILE
+    echo "ADMIN_PASSWORD=admin4tls" >> $ENVIRONMENTVARIABLESFILE
+    echo "DEFAULT_LANGUAGE=en_US" >> $ENVIRONMENTVARIABLESFILE
+    echo "DEFAULT_CURRENCY=USD" >> $ENVIRONMENTVARIABLESFILE
+    echo "DEFAULT_TIMEZONE=America/Chicago" >> $ENVIRONMENTVARIABLESFILE
+    echo "DATABASE_USER=magento" >> $ENVIRONMENTVARIABLESFILE
+    echo "DATABASE_PASSWORD=magento" >> $ENVIRONMENTVARIABLESFILE
+    echo "BACKEND_FRONTNAME=admin" >> $ENVIRONMENTVARIABLESFILE
     echo "# magento encryption key (if you have one) leave blank to have one generated" >> $ENVIRONMENTVARIABLESFILE
-    echo "KEY=${KEY}" >> $ENVIRONMENTVARIABLESFILE
+    echo "KEY=76b9e460d8a8205a0e42a1915b40cf2d" >> $ENVIRONMENTVARIABLESFILE
 }
 
 dbDump(){
     if [ $fileName ]
     then
         echo "Dumping Database"
-        warden db dump | gzip > $fileName.sql.gz
+        den db dump | gzip > $fileName.sql.gz
         echo "$fileName.sql.gz created"
     else
          echo "Filename required"    
@@ -94,9 +94,9 @@ dbReimport(){
        if [ $fileName ]
         then
             #drop and create db
-            warden shell -c "mysql -u root -p -h db --password=magento -e 'drop database magento'"
-            warden shell -c "mysql -u root -p -h db --password=magento -e 'create database magento'"
-            pv $fileName | gunzip -c | warden db import
+            den shell -c "mysql -u root -p -h db --password=magento -e 'drop database magento'"
+            den shell -c "mysql -u root -p -h db --password=magento -e 'create database magento'"
+            pv $fileName | gunzip -c | den db import
             echo "Done"
         else
             echo "filename required"    
@@ -137,8 +137,8 @@ case "$1" in
 -i) read -r -p "Do you want to install? [n/y] " REPLY
     if test "$REPLY" = "y" -o "$REPLY" = "Y"; then
        # Need to create this directory if pulling in from repo
-       warden shell -c "mkdir /var/www/html/pub/static"
-       warden shell -c "./vpwarden -i"
+       den shell -c "mkdir /var/www/html/pub/static"
+       den shell -c "./vpwarden -i"
        fileName="dbBaseInstall"
        dbDump
     else
@@ -147,7 +147,7 @@ case "$1" in
 
     shift;;
 
-# initialize new warden environment
+# initialize new den environment
 -n) if [ "$2" ] 
     then  
       phpVersion=$2
@@ -175,7 +175,7 @@ case "$1" in
 
 # cache clean
 
--c) warden shell -c "./vpwarden -c"
+-c) den shell -c "./vpwarden -c"
     shift;;
 
 # cache clean watch
@@ -185,26 +185,26 @@ case "$1" in
 
 # reindex
 
--r) warden shell -c "./vpwarden -r"
+-r) den shell -c "./vpwarden -r"
     shift;;
 
 
 # enable live search
 
--ls) warden shell -c "./vpwarden -ls"
+-ls) den shell -c "./vpwarden -ls"
     shift;;
 
 # disable live search
 
--es) warden shell -c "./vpwarden -es"
+-es) den shell -c "./vpwarden -es"
     shift;;
 
 # upgrade
 
--u) warden shell -c "./vpwarden -u"
+-u) den shell -c "./vpwarden -u"
     shift;;
 
--t) warden shell -c "./vpwarden -t"
+-t) den shell -c "./vpwarden -t"
     shift;;   
 
 *)  echo "1-$1"
