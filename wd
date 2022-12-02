@@ -34,9 +34,9 @@ initialize(){
     #replace server variables - assume php 8 is default, otherwise take the file as generated 
     #possible expansion to future version support
 
-    if [ $phpVersion = $DEFAULT_PHP_VERSION ]; then
-        set81
-    fi
+    #if [ $phpVersion = $DEFAULT_PHP_VERSION ]; then
+    #    set81
+    #fi
 
     addEnvVariables
     # execute the file that sets the environment variables
