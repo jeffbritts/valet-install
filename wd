@@ -9,8 +9,8 @@ usage() {
   echo ""
   echo "Actions:"
   printf "  %-15s%-30s\n" "-i" "Install Magento"
-  printf "  %-15s%-30s\n" "-n [php version] 8.1 default" "New Den environment"
-  printf "  %-15s%-30s\n" "-db [dump|reimport] [file] 8.1 default" "Dump|reimport db"
+  printf "  %-15s%-30s\n" "-n [php version] 8.2 default" "New Den environment"
+  printf "  %-15s%-30s\n" "-db [dump|reimport] [file]" "Dump|reimport db"
   printf "  %-15s%-30s\n" "-r" "Reindex"
   printf "  %-15s%-30s\n" "-u" "Run setup:upgrade"
   printf "  %-15s%-30s\n" "-c" "Clean cache"
@@ -22,7 +22,7 @@ usage() {
 
 }
 
-DEFAULT_PHP_VERSION=8.1
+DEFAULT_PHP_VERSION=8.2
 
 initialize(){ 
     echo "\nInitializing Den environment\n"
@@ -35,7 +35,7 @@ initialize(){
     #possible expansion to future version support
 
     #if [ $phpVersion = $DEFAULT_PHP_VERSION ]; then
-    #    set81
+    set82
     #fi
 
     addEnvVariables
@@ -58,6 +58,14 @@ set81(){
     sed -i "s/RABBITMQ_VERSION=3.8/RABBITMQ_VERSION=3.9/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/REDIS_VERSION=5.0/REDIS_VERSION=6.2/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/VARNISH_VERSION=6.0/VARNISH_VERSION=7.0/" $ENVIRONMENTVARIABLESFILE
+}
+
+set82(){
+    sed -i "s/OPENSEARCH_VERSION=1.2/OPENSEARCH_VERSION=2.5/" $ENVIRONMENTVARIABLESFILE
+    sed -i "s/MARIADB_VERSION=10.4/MARIADB_VERSION=10.6/" $ENVIRONMENTVARIABLESFILE
+    sed -i "s/PHP_VERSION=8.1/PHP_VERSION=8.2/" $ENVIRONMENTVARIABLESFILE
+    sed -i "s/REDIS_VERSION=6.2/REDIS_VERSION=7.0/" $ENVIRONMENTVARIABLESFILE
+    sed -i "s/VARNISH_VERSION=7.0/VARNISH_VERSION=7.1/" $ENVIRONMENTVARIABLESFILE
 }
 
 addEnvVariables(){
@@ -175,7 +183,7 @@ case "$1" in
 
 # cache clean
 
--c) den shell -c "./vpwarden -c"
+-c) den redis flushall;den shell -c "./vpwarden -c"
     shift;;
 
 # cache clean watch
