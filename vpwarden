@@ -185,6 +185,7 @@ installMagento(){
   
 
   #disable 2fa
+  bin/magento module:disable Magento_AdminAdobeImsTwoFactorAuth
   bin/magento module:disable Magento_TwoFactorAuth
 
   #disable live search

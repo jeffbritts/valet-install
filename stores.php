@@ -3,7 +3,7 @@
 use \Magento\Store\Model\StoreManager;
 
 $serverName = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : null;
-$allowedSiteCodes = ['fresh','auto','b2b','b2c','sitea','siteb','sitec','sited','sitee','luma','venia','brentmill','healthbeauty','wknd','wecafe','bodea'];
+$allowedSiteCodes = ['fresh','auto','b2b','b2c','sitea','siteb','sitec','sited','sitee','luma','venia','brentmill','healthbeauty','wknd','wecafe','bodea','frescopa'];
 $runCode = '';
 $runType = 'website';
 if($serverName){
