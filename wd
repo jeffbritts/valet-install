@@ -16,8 +16,8 @@ usage() {
   printf "  %-15s%-30s\n" "-c" "Clean cache"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
   printf "  %-15s%-30s\n" "-v" "Run coding standards check"
-  printf "  %-15s%-30s\n" "-ls" "Enable Live Search/Disable ElasticSearch"
-  printf "  %-15s%-30s\n" "-es" "Enable ElasicSearch/Disable Live Search"
+  printf "  %-15s%-30s\n" "-os" "Enable Live Search/Disable OpenSearch"
+  printf "  %-15s%-30s\n" "-es" "Enable OpenSearch/Disable Live Search"
   echo ""
 
 }
@@ -204,7 +204,7 @@ case "$1" in
 
 # disable live search
 
--es) den shell -c "./vpwarden -es"
+-os) den shell -c "./vpwarden -os"
     shift;;
 
 # upgrade

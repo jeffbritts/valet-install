@@ -14,8 +14,8 @@ usage() {
   printf "  %-15s%-30s\n" "-c" "Clean cache"
   printf "  %-15s%-30s\n" "-w" "Start cache-clean watcher"
   printf "  %-15s%-30s\n" "-v" "Run coding standards check"
-  printf "  %-15s%-30s\n" "-ls" "Enable Live Search/Disable ElasticSearch"
-  printf "  %-15s%-30s\n" "-es" "Enable ElasicSearch/Disable Live Search"
+  printf "  %-15s%-30s\n" "-ls" "Enable Live Search/Disable OpenSearch"
+  printf "  %-15s%-30s\n" "-os" "Enable OpenSearch/Disable Live Search"
   echo ""
 
 }
@@ -151,7 +151,7 @@ installMagento(){
                             --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
                             --cleanup-database \
                             --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
-                            --search-engine=elasticsearch7 --elasticsearch-host=opensearch --elasticsearch-port=9200 --elasticsearch-index-prefix=magento2 --elasticsearch-enable-auth=0 --elasticsearch-timeout=15 \
+                            --search-engine=opensearch --opensearch-host=opensearch --opensearch-port=9200 --opensearch-index-prefix=magento2 --opensearch-enable-auth=0 --opensearch-timeout=15 \
                             --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
                             --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
                             --page-cache-redis-port=6379
@@ -163,7 +163,7 @@ installMagento(){
                             --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
                             --cleanup-database --key=${KEY} \
                             --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
-                            --search-engine=elasticsearch7 --elasticsearch-host=opensearch --elasticsearch-port=9200 --elasticsearch-index-prefix=magento2 --elasticsearch-enable-auth=0 --elasticsearch-timeout=15 \
+                            --search-engine=opensearch --opensearch-host=opensearch --opensearch-port=9200 --opensearch-index-prefix=magento2 --opensearch-enable-auth=0 --opensearch-timeout=15 \
                             --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
                             --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
                             --page-cache-redis-port=6379
@@ -210,12 +210,9 @@ installMagento(){
   #enable cron
   bin/magento cron:install
 
-  #dump base install db
-  # valet db dump dbBaseInstall
 
   # Print results
-  echo "\n"
-  echo "Installation complete.\n"
+  echo "Installation complete."
 
   printf "%-15s%-30s\n" "Frontend" $baseURLSecure
   printf "%-15s%-30s\n" "Backend" $backendURL
@@ -233,7 +230,7 @@ isElasticsearchUp () {
 }
 
 enableCompression () {
-  echo "\nEnabling JS & CS merge and minification\n"
+  echo "Enabling JS & CS merge and minification"
   bin/magento config:set dev/js/merge_files 1
   bin/magento config:set dev/js/minify_files 1
   bin/magento config:set dev/js/enable_js_bundling 0
@@ -250,15 +247,19 @@ checkCodingStandards () {
 }
 
 disableLiveSearch(){ 
-   echo "\nDisableing Live Search\n"
-    bin/magento module:disable Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover
-    bin/magento module:enable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
+   echo "Disableing Live Search"
+    # set value for opensearch server
+    bin/magento config:set --scope=default catalog/search/opensearch_server_hostname opensearch
+    bin/magento module:disable Magento_LiveSearchProductListing Magento_LiveSearchTerms Magento_LiveSearchMetrics Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover Magento_LiveSearch
+    bin/magento module:enable Magento_Elasticsearch Magento_OpenSearch Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
+    bin/magento cache:clean
 }
 
 enableLiveSearch(){ 
-    echo "\nEnabling Live Search\n"
-    bin/magento module:disable Magento_Elasticsearch Magento_Elasticsearch6 Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
-    bin/magento module:enable Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover
+    echo "Enabling Live Search"
+    bin/magento module:disable Magento_Elasticsearch Magento_OpenSearch Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
+    bin/magento module:enable Magento_LiveSearchProductListing Magento_LiveSearchTerms Magento_LiveSearchMetrics Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover Magento_LiveSearch
+    bin/magento cache:clean
 }
 
 if [ "$1" = "" ]; then
@@ -318,7 +319,7 @@ case "$1" in
 
 # disable live search
 
--es) disableLiveSearch
+-os) disableLiveSearch
     shift;;
 
 # upgrade
@@ -329,7 +330,7 @@ case "$1" in
     rm -rf generated/*
     #disable 2fa and livesearch
     bin/magento module:disable Magento_TwoFactorAuth
-    disableLiveSearch
+    #disableLiveSearch
     enableCompression
     shift;;
 
