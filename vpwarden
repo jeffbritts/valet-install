@@ -130,7 +130,7 @@ installMagento(){
   # rm -f app/etc/config.php
 
   # apply patches
-  php vendor/magentoese/ece-tools/bin/ece-tools patch
+  # php vendor/magentoese/ece-tools/bin/ece-tools patch
 
   # drop database
   mysql -u root -p -h db --password=magento -e "drop database magento"
@@ -324,8 +324,8 @@ case "$1" in
 
 # upgrade
 
--u) php vendor/magentoese/ece-tools/bin/ece-tools patch
-    #isElasticsearchUp
+-u) # php vendor/magentoese/ece-tools/bin/ece-tools patch
+    # isElasticsearchUp
     bin/magento setup:upgrade
     rm -rf generated/*
     #disable 2fa and livesearch
