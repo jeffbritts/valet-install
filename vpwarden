@@ -145,29 +145,79 @@ installMagento(){
   backendURL="https://${WARDEN_ENV_NAME}.test/${BACKEND_FRONTNAME}"
 
   if [ -z "$KEY" ]; then
-  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure --backend-frontname=${BACKEND_FRONTNAME} \
+  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure \
                             --language=${DEFAULT_LANGUAGE} --currency=${DEFAULT_CURRENCY} --timezone=${DEFAULT_TIMEZONE} \
                             --db-host=db --db-name=magento --db-user=${DATABASE_USER} --db-password=${DATABASE_PASSWORD} \
                             --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
                             --cleanup-database \
-                            --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
-                            --search-engine=opensearch --opensearch-host=localhost --opensearch-port=9200 --opensearch-index-prefix=magento2 --opensearch-enable-auth=0 --opensearch-timeout=15 \
-                            --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
-                            --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
+                            --backend-frontname=${BACKEND_FRONTNAME} \
+                            --amqp-host=rabbitmq \
+                            --amqp-port=5672 \
+                            --amqp-user=guest \
+                            --amqp-password=guest \
+                            --db-host=db \
+                            --db-name=magento \
+                            --db-user=magento \
+                            --db-password=magento \
+                            --search-engine=opensearch \
+                            --opensearch-host=opensearch \
+                            --opensearch-port=9200 \
+                            --opensearch-index-prefix=magento2 \
+                            --opensearch-enable-auth=0 \
+                            --opensearch-timeout=15 \
+                            --http-cache-hosts=varnish:80 \
+                            --session-save=redis \
+                            --session-save-redis-host=redis \
+                            --session-save-redis-port=6379 \
+                            --session-save-redis-db=2 \
+                            --session-save-redis-max-concurrency=20 \
+                            --cache-backend=redis \
+                            --cache-backend-redis-server=redis \
+                            --cache-backend-redis-db=0 \
+                            --cache-backend-redis-port=6379 \
+                            --page-cache=redis \
+                            --page-cache-redis-server=redis \
+                            --page-cache-redis-db=1 \
                             --page-cache-redis-port=6379
   else
 
-  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure --backend-frontname=${BACKEND_FRONTNAME} \
+  bin/magento setup:install --base-url=$baseURLInsecure --base-url-secure=$baseURLSecure \
                             --language=${DEFAULT_LANGUAGE} --currency=${DEFAULT_CURRENCY} --timezone=${DEFAULT_TIMEZONE} \
                             --db-host=db --db-name=magento --db-user=${DATABASE_USER} --db-password=${DATABASE_PASSWORD} \
                             --admin-firstname=${ADMIN_FIRSTNAME} --admin-lastname=${ADMIN_LASTNAME} --admin-email=${ADMIN_EMAIL} --admin-user=${ADMIN_USERNAME} --admin-password=${ADMIN_PASSWORD} \
-                            --cleanup-database --key=${KEY} \
-                            --amqp-host=rabbitmq --amqp-port=5672 --amqp-user=guest --amqp-password=guest\
-                            --search-engine=opensearch --opensearch-host=localhost --opensearch-port=9200 --opensearch-index-prefix=magento2 --opensearch-enable-auth=0 --opensearch-timeout=15 \
-                            --http-cache-hosts=varnish:80 --session-save=redis --session-save-redis-host=redis --session-save-redis-port=6379 --session-save-redis-db=2 --session-save-redis-max-concurrency=20 \
-                            --cache-backend=redis --cache-backend-redis-server=redis --cache-backend-redis-db=0 --cache-backend-redis-port=6379 --page-cache=redis --page-cache-redis-server=redis --page-cache-redis-db=1 \
+                            --backend-frontname=${BACKEND_FRONTNAME} \
+                            --amqp-host=rabbitmq \
+                            --amqp-port=5672 \
+                            --amqp-user=guest \
+                            --amqp-password=guest \
+                            --db-host=db \
+                            --db-name=magento \
+                            --db-user=magento \
+                            --db-password=magento \
+                            --search-engine=opensearch \
+                            --opensearch-host=opensearch \
+                            --opensearch-port=9200 \
+                            --opensearch-index-prefix=magento2 \
+                            --opensearch-enable-auth=0 \
+                            --opensearch-timeout=15 \
+                            --http-cache-hosts=varnish:80 \
+                            --session-save=redis \
+                            --session-save-redis-host=redis \
+                            --session-save-redis-port=6379 \
+                            --session-save-redis-db=2 \
+                            --session-save-redis-max-concurrency=20 \
+                            --cache-backend=redis \
+                            --cache-backend-redis-server=redis \
+                            --cache-backend-redis-db=0 \
+                            --cache-backend-redis-port=6379 \
+                            --page-cache=redis \
+                            --page-cache-redis-server=redis \
+                            --page-cache-redis-db=1 \
                             --page-cache-redis-port=6379
   fi
+  # set value for opensearch server. For some reason isnt set correctly by install script
+  bin/magento config:set --scope=default catalog/search/opensearch_server_hostname opensearch
+  
   # Install and update modules
   bin/magento setup:upgrade
 
@@ -191,13 +241,7 @@ installMagento(){
   #disable live search
   disableLiveSearch
 
-  # Clear cache
-  if [ -f vendor/bin/cache-clean.js ]; then
-    vendor/bin/cache-clean.js
-  else
-    bin/magento cache:clean
-  fi
-
+  
   # Index data
   bin/magento indexer:reindex
 
@@ -210,6 +254,12 @@ installMagento(){
   #enable cron
   bin/magento cron:install
 
+  # Clear cache
+  if [ -f vendor/bin/cache-clean.js ]; then
+    vendor/bin/cache-clean.js
+  else
+    bin/magento cache:clean
+  fi
 
   # Print results
   echo "Installation complete."
@@ -249,7 +299,7 @@ checkCodingStandards () {
 disableLiveSearch(){ 
    echo "Disabling Live Search"
     # set value for opensearch server
-    bin/magento config:set --scope=default catalog/search/opensearch_server_hostname localhost
+    bin/magento config:set --scope=default catalog/search/opensearch_server_hostname opensearch
     bin/magento module:disable Magento_LiveSearchProductListing Magento_LiveSearchTerms Magento_LiveSearchMetrics Magento_LiveSearchAdapter Magento_LiveSearchStorefrontPopover Magento_LiveSearch
     bin/magento module:enable Magento_Elasticsearch Magento_OpenSearch Magento_Elasticsearch7 Magento_ElasticsearchCatalogPermissions Magento_InventoryElasticsearch Magento_ElasticsearchCatalogPermissionsGraphQl
     bin/magento cache:clean
