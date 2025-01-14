@@ -55,6 +55,13 @@ initialize(){
     #sed -i "s/VARNISH_VERSION=7.0/VARNISH_VERSION=7.1/" $ENVIRONMENTVARIABLESFILE
 #}
 
+checkCodingStandards () {
+  vendor/bin/phpcbf --standard=PSR2 $1 -s
+  vendor/bin/phpcbf --standard=Magento2 $1 -s
+  vendor/bin/phpcs --standard=PSR2 $1 -s
+  vendor/bin/phpcs --standard=Magento2 $1 -s
+}
+
 set82(){
     # sed -i "s/OPENSEARCH_VERSION=1.2/OPENSEARCH_VERSION=2.5/" $ENVIRONMENTVARIABLESFILE
     sed -i "s/MARIADB_VERSION=10.4/MARIADB_VERSION=10.6/" $ENVIRONMENTVARIABLESFILE
